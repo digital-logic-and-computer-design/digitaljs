@@ -113,6 +113,19 @@ export class Circuit extends HeadlessCircuit {
     displayOn(elem) {
         return this._makePaper(elem, this._graph);
     }
+    createSubcircuit(model) {
+        const div = $('<div>', {
+            title: model.get('disp_celltype') + ' ' + model.get('label')
+        }).appendTo('html > body');
+        const pdiv = $('<div>').appendTo(div);
+        const graph = model.get('graph');
+        const paper = this._makePaper(pdiv, graph);
+        return { div, paper, close: () => {
+            this._engine.unobserveGraph(graph);
+            paper.remove();
+            div.remove();
+        }};
+    }
     _makePaper(elem, graph) {
         this._engine.observeGraph(graph);
         const opts = _.merge({ el: elem, model: graph }, paperOptions);
@@ -161,18 +174,9 @@ export class Circuit extends HeadlessCircuit {
         paper.unfreeze();
         // subcircuit display
         this.listenTo(paper, 'open:subcircuit', (model) => {
-            const div = $('<div>', { 
-                title: model.get('disp_celltype') + ' ' + model.get('label')
-            }).appendTo('html > body');
-            const pdiv = $('<div>').appendTo(div);
-            const graph = model.get('graph');
-            const paper = this._makePaper(pdiv, graph);
-            paper.once('render:done', () => {
-                this._windowCallback('Subcircuit', div, () => {
-                    this._engine.unobserveGraph(graph);
-                    paper.remove();
-                    div.remove();
-                }, { model });
+            const sub = this.createSubcircuit(model);
+            sub.paper.once('render:done', () => {
+                this._windowCallback('Subcircuit', sub.div, sub.close, { model });
             });
         });
         this.listenTo(paper, 'open:memorycontent', (div, closeCallback, context) => {
