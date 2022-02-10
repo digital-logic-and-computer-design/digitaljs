@@ -172,14 +172,14 @@ export class Circuit extends HeadlessCircuit {
                     this._engine.unobserveGraph(graph);
                     paper.remove();
                     div.remove();
-                });
+                }, { model });
             });
         });
-        this.listenTo(paper, 'open:memorycontent', (div, closeCallback) => {
-            this._windowCallback('Memory', div, closeCallback);
+        this.listenTo(paper, 'open:memorycontent', (div, closeCallback, context) => {
+            this._windowCallback('Memory', div, closeCallback, context);
         });
-        this.listenTo(paper, 'open:fsm', (div, closeCallback) => {
-            this._windowCallback('FSM', div, closeCallback);
+        this.listenTo(paper, 'open:fsm', (div, closeCallback, context) => {
+            this._windowCallback('FSM', div, closeCallback, context);
         });
         paper.fixed = function(fixed) {
             this.setInteractivity(!fixed);

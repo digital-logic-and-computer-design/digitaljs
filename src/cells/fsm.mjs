@@ -221,7 +221,7 @@ export const FSMView = BoxView.extend({
         this.paper.trigger('open:fsm', div, () => {
             paper.remove();
             div.remove();
-        });
+        }, { model: this.model });
         return false;
     }
 });

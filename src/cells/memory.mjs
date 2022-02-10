@@ -412,7 +412,7 @@ export const MemoryView = BoxView.extend({
             div.remove();
             model.off("memChange", mem_change_cb);
             model.off("change:inputSignals", input_change_cb);
-        });
+        }, { model });
         return false;
     }
 });
