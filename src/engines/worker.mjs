@@ -6,7 +6,7 @@ import * as cells from '../cells.mjs';
 import Worker from 'web-worker';
 
 export class WorkerEngine extends BaseEngine {
-    constructor(graph, { workerURL }) {
+    constructor(graph, { workerURL, initTick }) {
         super(graph);
         this._running = false;
         this._tickCache = 0;
@@ -20,6 +20,8 @@ export class WorkerEngine extends BaseEngine {
         this._worker = workerURL ? new Worker(workerURL) : new Worker(new URL('./worker-worker.mjs', import.meta.url));
         this._worker.onmessage = (e) => this._handleMessage(e.data);
         this.interval = 10;
+        if (initTick)
+            this._worker.postMessage({ type: 'setTick', arg: initTick });
         this._addGraph(this._graph);
     }
     _addGate(graph, gate) {

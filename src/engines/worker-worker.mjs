@@ -162,6 +162,9 @@ class WorkerEngineWorker {
         }, 25);
         this._updater = null;
     }
+    setTick(tick) {
+        this._tick = tick | 0;
+    }
     interval(ms) {
         this._interval = ms;
     }
