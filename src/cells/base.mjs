@@ -376,6 +376,10 @@ export const Wire = joint.shapes.standard.Link.define('Wire', {
         },
         wrapper: {
             stroke: 'red'
+        },
+        wirelabel: {
+            fill: 'black',
+            fontSize: '8pt'
         }
     },
 
@@ -397,11 +401,7 @@ export const Wire = joint.shapes.standard.Link.define('Wire', {
                     }
                 ],
                 attrs: {
-                    label: {
-                        text: this.get('netname'),
-                        fill: 'black',
-                        fontSize: '8pt'
-                    }
+                    label: _.merge({ text: this.get('netname') }, this.get('attrs').wirelabel)
                 },
                 position: {
                     distance: 0.5

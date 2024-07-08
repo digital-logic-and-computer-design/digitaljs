@@ -5,11 +5,11 @@ import * as help from '../help.mjs';
 import { BaseEngine } from './base.mjs';
 
 export class SynchEngine extends BaseEngine {
-    constructor(graph, {cells}) {
+    constructor(graph, {cells, initTick}) {
         super(graph);
         this._queue = new Map();
         this._pq = new FastPriorityQueue();
-        this._tick = 0;
+        this._tick = initTick | 0;
         this._cells = cells;
         this._monitorChecks = new Map();
         this._alarms = new Map();

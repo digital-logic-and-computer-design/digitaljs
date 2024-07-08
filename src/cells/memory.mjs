@@ -257,44 +257,30 @@ export const Memory = Box.define('Memory', {
         params.memdata = this.memdata.toJSON();
         return params;
     },
-    _gateParams: Box.prototype._gateParams.concat(['bits', 'abits', 'rdports', 'wrports', 'words', 'offset']),
-    _unsupportedPropChanges: Box.prototype._unsupportedPropChanges.concat(['bits', 'abits', 'rdports', 'wrports', 'words', 'offset']),
-    _operationHelpers: Box.prototype._operationHelpers.concat(['_memrdports', '_memwrports', '_memports', '_calcaddr'])
-});
-export const MemoryView = BoxView.extend({
-    _autoResizeBox: true,
-    events: {
-        "click foreignObject.tooltip": "stopprop",
-        "mousedown foreignObject.tooltip": "stopprop",
-        "touchstart foreignObject.tooltip": "stopprop", // make sure the input receives focus
-        "click a.zoom": "_displayEditor"
-    },
-    _displayEditor(evt) {
-        evt.stopPropagation();
-        const model = this.model;
-        const display3vl = model.graph._display3vl;
+    createEditor() {
+        const display3vl = this.graph._display3vl;
         const div = $('<div>', {
-            title: "Memory contents: " + model.get('label')
+            title: "Memory contents: " + this.get('label')
         }).appendTo('html > body');
         div.append($(
             '<div class="btn-toolbar" role="toolbar">' +
             '<div class="btn-group mr-2" role="group">' +
             '<button name="prev" type="button" class="btn btn-secondary" title="Previous page">←</button>' +
             '<button name="next" type="button" class="btn btn-secondary" title="Next page">→</button>' +
-            '</div>' + 
+            '</div>' +
 //            '<div class="btn-group mr-2" role="group">' +
 //            '<button type="button" class="btn btn-secondary" title="Load contents">Load</button>' +
 //            '<button type="button" class="btn btn-secondary" title="Save contents">Save</button>' +
-//            '</div>' + 
+//            '</div>' +
             '<div class="input-group">' +
-            help.baseSelectMarkupHTML(display3vl, model.get('bits'), 'hex') +
+            help.baseSelectMarkupHTML(display3vl, this.get('bits'), 'hex') +
             '</div>' +
             '</div>' +
             '<table class="memeditor">' +
             '</table>'));
-        const words = model.get('words');
-        const memdata = model.memdata;
-        const ahex = Math.ceil(model.get('abits')/4);
+        const words = this.get('words');
+        const memdata = this.memdata;
+        const ahex = Math.ceil(this.get('abits')/4);
         const rows = 8;
         let columns, address = 0;
         const get_numbase = () => div.find('select[name=base]').val();
@@ -304,19 +290,19 @@ export const MemoryView = BoxView.extend({
             return div.find('table tr:nth-child('+(r+1)+') td:nth-child('+(c+2)+') input');
         }
         const clearMarkings = (sigs) => {
-            for (const [portname, port] of model._memrdports()) {
-                getCell(model._calcaddr(sigs[portname + 'addr'])).removeClass('isread');
+            for (const [portname, port] of this._memrdports()) {
+                getCell(this._calcaddr(sigs[portname + 'addr'])).removeClass('isread');
             }
-            for (const [portname, port] of model._memwrports()) {
-                getCell(model._calcaddr(sigs[portname + 'addr'])).removeClass('iswrite');
+            for (const [portname, port] of this._memwrports()) {
+                getCell(this._calcaddr(sigs[portname + 'addr'])).removeClass('iswrite');
             }
         }
         const displayMarkings = (sigs) => {
-            for (const [portname, port] of model._memrdports()) {
-                getCell(model._calcaddr(sigs[portname + 'addr'])).addClass('isread');
+            for (const [portname, port] of this._memrdports()) {
+                getCell(this._calcaddr(sigs[portname + 'addr'])).addClass('isread');
             }
-            for (const [portname, port] of model._memwrports()) {
-                getCell(model._calcaddr(sigs[portname + 'addr'])).addClass('iswrite');
+            for (const [portname, port] of this._memwrports()) {
+                getCell(this._calcaddr(sigs[portname + 'addr'])).addClass('iswrite');
             }
         }
         const updateStuff = () => {
@@ -324,7 +310,7 @@ export const MemoryView = BoxView.extend({
             div.find('button[name=prev]').prop('disabled', address <= 0);
             div.find('button[name=next]').prop('disabled', address + rows * columns >= words);
             let row = div.find('table tr:first-child');
-            const memdata = model.memdata;
+            const memdata = this.memdata;
             for (let r = 0; r < rows; r++, row = row.next()) {
                 if (address + r * columns >= words) break;
                 const addrs = (address + r * columns).toString(16);
@@ -337,12 +323,12 @@ export const MemoryView = BoxView.extend({
                                      .removeClass('invalid');
                 }
             }
-            displayMarkings(model.get('inputSignals'));
+            displayMarkings(this.get('inputSignals'));
         };
         const redraw = () => {
             const numbase = get_numbase();
             const ptrn = display3vl.pattern(numbase);
-            const ds = display3vl.size(numbase, model.get('bits')); 
+            const ds = display3vl.size(numbase, this.get('bits'));
             columns = Math.min(words, 16, Math.ceil(32/ds));
             address = Math.max(0, Math.min(words - rows * columns, address));
             const table = div.find('table');
@@ -368,12 +354,12 @@ export const MemoryView = BoxView.extend({
         redraw();
         div.find("select[name=base]").on('change', redraw);
         div.find("button[name=prev]").on('click', () => {
-            clearMarkings(model.get('inputSignals'));
+            clearMarkings(this.get('inputSignals'));
             address = Math.max(0, address - rows * columns);
             updateStuff();
         });
         div.find("button[name=next]").on('click', () => {
-            clearMarkings(model.get('inputSignals'));
+            clearMarkings(this.get('inputSignals'));
             address = Math.min(words - rows * columns, address + rows * columns);
             updateStuff();
         });
@@ -383,11 +369,11 @@ export const MemoryView = BoxView.extend({
             const c = target.closest('td').index() - 1;
             const r = target.closest('tr').index();
             const addr = address + r * columns + c;
-            const bits = model.get('bits');
+            const bits = this.get('bits');
             if (display3vl.validate(numbase, evt.target.value, bits)) {
                 const val = display3vl.read(numbase, evt.target.value, bits);
                 memdata.set(addr, val);
-                model.trigger('manualMemChange', model, addr, val);
+                this.trigger('manualMemChange', this, addr, val);
                 target.removeClass('invalid');
             } else {
                 target.addClass('invalid');
@@ -403,16 +389,33 @@ export const MemoryView = BoxView.extend({
             setTimeout(() => { z.addClass('flash') }, 10);
         };
         const input_change_cb = (gate, sigs) => {
-            clearMarkings(model.previous('inputSignals'));
+            clearMarkings(this.previous('inputSignals'));
             displayMarkings(sigs);
         };
-        model.on("memChange", mem_change_cb);
-        model.on("change:inputSignals", input_change_cb);
-        this.paper.trigger('open:memorycontent', div, () => {
+        this.on("memChange", mem_change_cb);
+        this.on("change:inputSignals", input_change_cb);
+        return { div, close: () => {
             div.remove();
-            model.off("memChange", mem_change_cb);
-            model.off("change:inputSignals", input_change_cb);
-        });
+            this.off("memChange", mem_change_cb);
+            this.off("change:inputSignals", input_change_cb);
+        }};
+    },
+    _gateParams: Box.prototype._gateParams.concat(['bits', 'abits', 'rdports', 'wrports', 'words', 'offset']),
+    _unsupportedPropChanges: Box.prototype._unsupportedPropChanges.concat(['bits', 'abits', 'rdports', 'wrports', 'words', 'offset']),
+    _operationHelpers: Box.prototype._operationHelpers.concat(['_memrdports', '_memwrports', '_memports', '_calcaddr'])
+});
+export const MemoryView = BoxView.extend({
+    _autoResizeBox: true,
+    events: {
+        "click foreignObject.tooltip": "stopprop",
+        "mousedown foreignObject.tooltip": "stopprop",
+        "touchstart foreignObject.tooltip": "stopprop", // make sure the input receives focus
+        "click a.zoom": "_displayEditor"
+    },
+    _displayEditor(evt) {
+        evt.stopPropagation();
+        const editor = this.model.createEditor();
+        this.paper.trigger('open:memorycontent', editor.div, editor.close, { model: this.model });
         return false;
     }
 });
