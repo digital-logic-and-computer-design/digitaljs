@@ -310,7 +310,7 @@ export const GateView = joint.dia.ElementView.extend({
     attrs: {
         signal: {
             high: { port: { 'stroke': '#03c03c' } },
-            low: { port: { 'stroke': '#fc7c68' } },
+            low: { port: {  'stroke': '#ff0000'} },
             def: { port: { 'stroke': '#779ecb' } },
             undef: { port: { 'stroke': '#999' } }
         }
@@ -501,10 +501,10 @@ export const WireView = joint.dia.LinkView.extend({
     longWireLength: 400,
     attrs: {
         signal: {
-            high: { line: { 'stroke': '#03c03c' } },
-            low: { line: { 'stroke': '#fc7c68' } },
-            def: { line: { 'stroke': '#779ecb' } },
-            undef: { line: { 'stroke': '#999' } }
+            high: { line: { 'stroke': '#03c03c', 'stroke-dasharray':'none' } },
+            low: { line: { 'stroke': '#ff0000', 'stroke-dasharray':'10 5' } },
+            def: { line: { 'stroke': '#779ecb', 'stroke-dasharray':'none' } },
+            undef: { line: { 'stroke': '#999', 'stroke-dasharray':'none' } }
         },
         bits: {
             bus: { line: { 'stroke-width': '4px' } },

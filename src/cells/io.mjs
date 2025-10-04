@@ -322,6 +322,55 @@ export const Output = IO.define('Output', {
         return this.get('inputSignals').in;
     },
     markupSingle: IO.prototype.markupSingle.concat([{
+            tagName: 'defs',
+            children: [{
+                tagName: 'pattern',
+                attributes: {
+                    id: 'lamp-hatch-pattern-low',
+                    patternUnits: 'userSpaceOnUse',
+                    width: '4',
+                    height: '4'
+                },
+                children: [{
+                    tagName: 'rect',
+                    attributes: {
+                        width: '4',
+                        height: '4',
+                        fill: '#ff0000'
+                    }
+                }, {
+                    tagName: 'path',
+                    attributes: {
+                        d: 'M0,4 L4,0 M-1,1 L1,-1 M3,5 L5,3',
+                        stroke: 'white',
+                        'stroke-width': '1'
+                    }
+                }]
+            }, {
+                tagName: 'pattern',
+                attributes: {
+                    id: 'lamp-hatch-pattern-gray',
+                    patternUnits: 'userSpaceOnUse',
+                    width: '4',
+                    height: '4'
+                },
+                children: [{
+                    tagName: 'rect',
+                    attributes: {
+                        width: '4',
+                        height: '4',
+                        fill: '#bfc5c6'
+                    }
+                }, {
+                    tagName: 'path',
+                    attributes: {
+                        d: 'M0,4 L4,0 M-1,1 L1,-1 M3,5 L5,3',
+                        stroke: 'white',
+                        'stroke-width': '1'
+                    }
+                }]
+            }]
+        }, {
             tagName: 'circle',
             className: 'led',
             selector: 'led'
@@ -339,8 +388,8 @@ export const OutputView = IOView.extend({
     attrs: _.merge({
         lamp: {
             high: { led: { 'fill': '#03c03c' } },
-            low: { led: { 'fill': '#fc7c68' } },
-            undef: { led: { 'fill': '#bfc5c6' } }
+            low: { led: {  'fill': 'url(#lamp-hatch-pattern-low)' } },
+            undef: { led: { 'fill': 'url(#lamp-hatch-pattern-gray)' } }
         }
     }, IOView.prototype.attrs),
     confirmUpdate(flags) {
